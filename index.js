@@ -5,6 +5,28 @@ const url = require('url');
 const StringDecoder = require('node:string_decoder').StringDecoder;
 const config = require('./config');
 const fs = require('fs');
+const _data = require('./lib/data');
+
+
+//testing 
+//@TODO
+// _data.create('test','newFile',{'foo':'bar'},(err) => {
+//     console.log('error in data processing ',err);
+// });
+
+// _data.read('test','newFile1',(err,data) => {
+//     console.log('error in data processing ',err, 'data: ',data);
+// });
+
+// _data.update('test','newFile',{'foo2':'bar2'},(err) => {
+//     console.log('error in data processing ',err);
+// });
+
+// _data.delete('test','newFile',(err)=>{
+//     console.log('error in data processing ',err);
+// });
+
+
 //Http server 
 var httpServer = http.createServer((req, res) => {
 unifiedServer(req, res);
@@ -20,6 +42,7 @@ var httpsServerOptions = {
     'key': fs.readFileSync('./https/key.pem'),
     'cert':fs.readFileSync('./https/cert.pem')
 };
+
 var httpsServer = https.createServer(httpsServerOptions,(req, res) => {
     unifiedServer(req, res);
     });
@@ -91,7 +114,6 @@ var unifiedServer = (req, res) => {
     });
 };
 
-
 //define handlers 
 var handlers = {};
 
@@ -103,6 +125,7 @@ handlers.ping = (data,callback) => {
 handlers.notFound = (data, callback) => {
     callback(404)
 };
+
 //define req router 
 var router = {
     'ping': handlers.ping
