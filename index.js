@@ -3,29 +3,11 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const StringDecoder = require('node:string_decoder').StringDecoder;
-const config = require('./config');
+const config = require('./lib/config');
 const fs = require('fs');
 const _data = require('./lib/data');
-
-
-//testing 
-//@TODO
-// _data.create('test','newFile',{'foo':'bar'},(err) => {
-//     console.log('error in data processing ',err);
-// });
-
-// _data.read('test','newFile1',(err,data) => {
-//     console.log('error in data processing ',err, 'data: ',data);
-// });
-
-// _data.update('test','newFile',{'foo2':'bar2'},(err) => {
-//     console.log('error in data processing ',err);
-// });
-
-// _data.delete('test','newFile',(err)=>{
-//     console.log('error in data processing ',err);
-// });
-
+const handlers = require('./lib/handlers');
+const helpers = require('./lib/helpers');
 
 //Http server 
 var httpServer = http.createServer((req, res) => {
@@ -62,7 +44,7 @@ var unifiedServer = (req, res) => {
     var path = paresUrl.pathname;
     var trimmedPath = path.replace(/^\/+|\/+$/g, '');
     //get the query string as object
-    var queryString = paresUrl.query;
+    var queryStringObject = paresUrl.query;
     //get the http method 
     var method = req.method.toLowerCase();
     //get the headers 
@@ -77,16 +59,15 @@ var unifiedServer = (req, res) => {
         buffer += decoder.end();
 
         // choose the handler this req should go to
-        console.log('path', trimmedPath)
         var chooseHandler = typeof (router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
-        console.log('path1', router[trimmedPath])
         var data = {
             'trimmedPath': trimmedPath,
-            'queryStringObject': queryString,
+            'queryStringObject': queryStringObject,
             'method': method,
             'headers': headers,
-            'payload': buffer
+            'payload': helpers.parseJsonToObject(buffer)
         };
+        console.log('buffer',data);
         //route the req to the handler specified in the router 
         chooseHandler(data, (statusCode, payload) => {
             statusCode = typeof (statusCode) == 'number' ? statusCode : 200;
@@ -114,19 +95,10 @@ var unifiedServer = (req, res) => {
     });
 };
 
-//define handlers 
-var handlers = {};
 
-//ping handler
-handlers.ping = (data,callback) => {
-    callback(200);
-};
-
-handlers.notFound = (data, callback) => {
-    callback(404)
-};
 
 //define req router 
 var router = {
-    'ping': handlers.ping
+    'ping': handlers.ping,
+    'users':handlers.users,
 }
