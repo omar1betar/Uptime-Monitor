@@ -95,16 +95,15 @@ var unifiedServer = (req, res) => {
 //define handlers 
 var handlers = {};
 
-//sample handlers
-handlers.sample = (data, callback) => {
-    //callback http statas code , object payload
-    callback(406, { 'name': 'Sample Handler' })
-
+//ping handler
+handlers.ping = (data,callback) => {
+    callback(200);
 };
+
 handlers.notFound = (data, callback) => {
     callback(404)
 };
 //define req router 
 var router = {
-    'sample': handlers.sample
+    'ping': handlers.ping
 }
